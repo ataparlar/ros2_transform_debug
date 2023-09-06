@@ -20,6 +20,7 @@ find_package(nav_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(message_filters REQUIRED)
+find_package(GeographicLib REQUIRED)
 
 include_directories(include
         ${rclcpp_INCLUDE_DIRS}
@@ -31,6 +32,7 @@ include_directories(include
         ${nav_msgs_INCLUDE_DIRS}
         ${geometry_msgs_INCLUDE_DIRS}
         ${message_filters_INCLUDE_DIRS}
+        ${GeographicLib_INCLUDE_DIRS}
 )
 
 add_executable(data_provider_node
@@ -39,18 +41,33 @@ ament_target_dependencies(data_provider_node rclcpp sensor_msgs nav_msgs
         tf2 tf2_ros message_filters geometry_msgs)
 target_link_libraries(data_provider_node
         Eigen3::Eigen
+        ${GeographicLib_LIBRARIES}
         ${message_filter_LIBRARIES})
 
 add_executable(lio_sam_imu_transform
         src/lio_sam_imu_transform.cpp)
 ament_target_dependencies(lio_sam_imu_transform rclcpp sensor_msgs nav_msgs
-        tf2 tf2_ros Eigen3 message_filters geometry_msgs)
+        tf2 tf2_ros Eigen3 message_filters geometry_msgs GeographicLib)
 target_link_libraries(lio_sam_imu_transform
         Eigen3::Eigen
         ${message_filter_LIBRARIES})
 
-install(TARGETS data_provider_node lio_sam_imu_transform
+add_executable(transform_visualizer_exe
+        src/transform_visualizer.cpp)
+ament_target_dependencies(transform_visualizer_exe rclcpp sensor_msgs nav_msgs
+        tf2 tf2_ros message_filters geometry_msgs)
+target_link_libraries(transform_visualizer_exe
+        Eigen3::Eigen
+        ${GeographicLib_LIBRARIES}
+        ${message_filter_LIBRARIES})
+
+install(TARGETS data_provider_node lio_sam_imu_transform transform_visualizer_exe
   DESTINATION lib/${PROJECT_NAME})
+
+install(DIRECTORY launch
+        DESTINATION share/${PROJECT_NAME}/)
+install(DIRECTORY config
+        DESTINATION share/${PROJECT_NAME}/)
 
 
 if(BUILD_TESTING)
