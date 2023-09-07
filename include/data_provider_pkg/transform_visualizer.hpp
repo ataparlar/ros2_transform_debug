@@ -39,9 +39,27 @@ private:
     std::string navsatfix_topic;
     bool publish_tf;
     bool enable_ned2enu;
+    bool approximate_time;
+
+    typedef message_filters::sync_policies::ApproximateTime<
+            sensor_msgs::msg::Imu,
+            nav_msgs::msg::Odometry,
+            sensor_msgs::msg::PointCloud2,
+            sensor_msgs::msg::NavSatFix>
+            approximate_policy;
+
+    // made a synchronizer type which uses approximate policy
+    typedef message_filters::Synchronizer<approximate_policy> Sync;
+
+    std::shared_ptr<Sync> sync_;
 
     // Subscribers
     rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_subscription_;
+    message_filters::Subscriber<nav_msgs::msg::Odometry> approx_odom_subscription_;
+    message_filters::Subscriber<sensor_msgs::msg::Imu> approx_imu_subscription_;
+    message_filters::Subscriber<sensor_msgs::msg::PointCloud2> approx_pointcloud_subscription_;
+
+    message_filters::Subscriber<sensor_msgs::msg::NavSatFix> approx_navsatfix_subscription_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_subscription_;
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr lidar_subscription_;
     rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr navsatfix_subscription_;
@@ -58,6 +76,11 @@ private:
     void odom_callback(const nav_msgs::msg::Odometry::ConstSharedPtr & msg);
     void lidar_callback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr & msg);
     void navsatfix_callback(const sensor_msgs::msg::NavSatFix::ConstSharedPtr & msg);
+
+    void approx_callback(const sensor_msgs::msg::Imu::ConstSharedPtr & imu_msg,
+                         const nav_msgs::msg::Odometry::ConstSharedPtr & odom_msg,
+                         const sensor_msgs::msg::PointCloud2::ConstSharedPtr & pointcloud_msg,
+                         const sensor_msgs::msg::NavSatFix::ConstSharedPtr & navsatfix_msg);
 
     // Transform Frames
     geometry_msgs::msg::TransformStamped base_link_tf;

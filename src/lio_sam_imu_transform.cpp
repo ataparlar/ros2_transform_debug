@@ -83,57 +83,22 @@ void LioSamImuTransform::map_callback(const nav_msgs::msg::Odometry::ConstShared
 
         geometry_msgs::msg::TransformStamped transformStamped;
 
-        tf2::Quaternion q_orig, q_rot, q_rot_x, q_rot_y, q_rot_z, q_rot2, q_new;
+        tf2::Quaternion q_orig, q_rot, q_new;
         q_orig.setX(imu_msg->orientation.x);
         q_orig.setY(imu_msg->orientation.y);
         q_orig.setZ(imu_msg->orientation.z);
         q_orig.setW(imu_msg->orientation.w);
 //        q_orig = q_orig.inverse();
 
-
-
-
         q_rot.setRPY(0.0, 0.0, 0.0);
-//    q_rot.setRPY(3.14159265, 0.0, -1.57079633);
-//    q_rot_x.setRPY(3.14159265, 0.0, 0.0); // NED -> ENU
-//    q_rot_y.setRPY(0.0, 0.0, 0.0); // NED -> ENU
-//    q_rot_z.setRPY(0.0, 0.0, -1.57079633); // NED -> ENU
-//    q_rot.setRPY(0.0, 0.0, -1.57079633);
 
-//    q_rot2.setRPY(0.0, 0.0,1.57079633);
-//    q_rot2.setRPY(3.14159265, 0.0,0.0);
-
-        q_new = q_orig * q_rot; // * q_rot2;
+        q_new = q_orig * q_rot;
         tf2::Matrix3x3 m(q_new);
         double roll, pitch, yaw;
         m.getRPY(roll, pitch, yaw);
 //        q_new.setRPY(pitch, roll, -yaw);
         q_new.setRPY(roll, pitch, yaw);
-//        q_rot.setRPY(0.0, 0.0, 1.57079633);
-//        q_new = q_new * q_rot;
-
-
-
-//    q_new = q_orig * q_rot_z; // * q_rot2;
-//    q_new = q_new * q_rot_y;
-//    q_new = q_new * q_rot_x;
         q_new.normalize();
-
-
-
-//    Eigen::Quaterniond imu_quat(imu_msg->orientation.w, imu_msg->orientation.x,
-//                                       imu_msg->orientation.y, imu_msg->orientation.z);
-//    Eigen::Affine3d ned2enu(Eigen::Affine3d::Identity());
-//    ned2enu.matrix().topLeftCorner<3, 3>() =
-//            Eigen::AngleAxisd(-1.57079633, Eigen::Vector3d::UnitZ())
-//                    .toRotationMatrix() *
-//            Eigen::AngleAxisd(0.0, Eigen::Vector3d::UnitY())
-//                    .toRotationMatrix() *
-//            Eigen::AngleAxisd(14159265, Eigen::Vector3d::UnitX())
-//                    .toRotationMatrix();
-//    Eigen::Affine3d new_rot(Eigen::Affine3d::Identity());
-//    new_rot = imu_quat.toRotationMatrix() * ned2enu.rotation();
-
 
         geometry_msgs::msg::PoseStamped pose;
         pose.header.frame_id = "map";

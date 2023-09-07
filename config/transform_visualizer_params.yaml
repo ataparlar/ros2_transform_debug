@@ -14,5 +14,6 @@
 #    odom_topic: /sensing/gnss/clap/ros/odometry
 #    lidar_topic: /sensing/lidar/top/mirror_cropped/pointcloud_ex
 #    navsatfix_topic: /sensing/gnss/clap/ros/gps_nav_sat_fix
-    publish_tf: false
-    enable_ned2enu: true
+    publish_tf: true
+    enable_ned2enu: false
+    approximate_time: false
