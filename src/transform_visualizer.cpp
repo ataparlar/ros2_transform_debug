@@ -68,19 +68,20 @@ void TransformVisualizer::imu_callback(const sensor_msgs::msg::Imu::ConstSharedP
     q_orig.setY(msg->orientation.y);
     q_orig.setZ(msg->orientation.z);
     q_orig.setW(msg->orientation.w);
+
+    q_rot.setRPY(imu_roll*M_PI/180, imu_pitch*M_PI/180, imu_yaw*M_PI/180);
+    q_new = q_orig * q_rot;
+
     // get roll pitch yaw values of the msg
     tf2::Matrix3x3 m(q_orig);
     double roll, pitch, yaw;
-    m.getRPY(yaw, pitch, yaw);
+    m.getRPY(roll, pitch, yaw);
 
     if (enable_ned2enu) {
         q_new.setRPY(pitch, roll, -yaw);
     } else {
         q_new.setRPY(roll, pitch, yaw);
     }
-
-    q_rot.setRPY(imu_roll*M_PI/180, imu_pitch*M_PI/180, imu_yaw*M_PI/180);
-    q_new = q_orig * q_rot;
     q_new.normalize();
 
     odom.pose.pose.orientation.x = q_new.x();
