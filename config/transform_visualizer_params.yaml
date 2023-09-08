@@ -6,13 +6,21 @@
     imu2lidar_x: 0.0
     imu2lidar_y: 0.0
     imu2lidar_z: 180.0
-    imu_topic: /applanix/lvx_client/imu_raw
-    odom_topic: /applanix/lvx_client/odom
-    lidar_topic: /hesai/pandar
-    navsatfix_topic: /applanix/lvx_client/gnss/fix
+
+#    imu_topic: /applanix
+#    odom_topic: /applanix
+#    lidar_topic: /hesai
+#    navsatfix_topic: /applanix
+
 #    imu_topic: /sensing/gnss/clap/ros/imu
 #    odom_topic: /sensing/gnss/clap/ros/odometry
 #    lidar_topic: /sensing/lidar/top/mirror_cropped/pointcloud_ex
 #    navsatfix_topic: /sensing/gnss/clap/ros/gps_nav_sat_fix
+
+    imu_topic: /sensing/gnss/clap/ros/imu
+    odom_topic: /sensing/gnss/clap/ros/odometry
+    lidar_topic: /sensing/lidar/top/mirror_cropped/pointcloud_ex
+    navsatfix_topic: /sensing/gnss/clap/ros/gps_nav_sat_fix
+
     publish_tf: false
-    enable_ned2enu: true
+    enable_ned2enu: false

@@ -21,6 +21,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(GeographicLib REQUIRED)
+find_package(PCL REQUIRED)
 
 include_directories(include
         ${rclcpp_INCLUDE_DIRS}
@@ -33,6 +34,7 @@ include_directories(include
         ${geometry_msgs_INCLUDE_DIRS}
         ${message_filters_INCLUDE_DIRS}
         ${GeographicLib_INCLUDE_DIRS}
+        ${PCL_INCLUDE_DIRS}
 )
 
 add_executable(data_provider_node
@@ -61,7 +63,17 @@ target_link_libraries(transform_visualizer_exe
         ${GeographicLib_LIBRARIES}
         ${message_filter_LIBRARIES})
 
-install(TARGETS data_provider_node lio_sam_imu_transform transform_visualizer_exe
+add_executable(pointcloud_translator_exe
+        src/pointcloud_translator.cpp)
+ament_target_dependencies(pointcloud_translator_exe rclcpp sensor_msgs nav_msgs
+        tf2 tf2_ros message_filters geometry_msgs GeographicLib PCL)
+target_link_libraries(pointcloud_translator_exe
+        Eigen3::Eigen
+        ${GeographicLib_LIBRARIES}
+        ${PCL_LIBRARIES}
+        ${message_filter_LIBRARIES})
+
+install(TARGETS data_provider_node lio_sam_imu_transform transform_visualizer_exe pointcloud_translator_exe
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch
