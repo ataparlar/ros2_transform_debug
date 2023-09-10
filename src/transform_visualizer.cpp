@@ -43,8 +43,11 @@ TransformVisualizer::TransformVisualizer() :
             odom_topic, 10, std::bind(&TransformVisualizer::odom_callback,
                                        this, std::placeholders::_1));
     lidar_subscription_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
-            lidar_topic, 10, std::bind(&TransformVisualizer::lidar_callback,
+            lidar_topic, rclcpp::SensorDataQoS(), std::bind(&TransformVisualizer::lidar_callback,
                                            this, std::placeholders::_1));
+//    lidar_subscription_ = this->create_subscription<sensor_msgs::msg::PointCloud2>(
+//            lidar_topic, 10, std::bind(&TransformVisualizer::lidar_callback,
+//                                           this, std::placeholders::_1));
     navsatfix_subscription_ = this->create_subscription<sensor_msgs::msg::NavSatFix>(
             navsatfix_topic, 10, std::bind(&TransformVisualizer::navsatfix_callback,
                                            this, std::placeholders::_1));
@@ -52,7 +55,7 @@ TransformVisualizer::TransformVisualizer() :
 
     lidar_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/transform_visualizer/pointcloud", 10);
     imu_publisher_ = this->create_publisher<sensor_msgs::msg::Imu>("/transform_visualizer/imu", 10);
-    odom_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("/transform_visualizer/odom/navsatfix", 10);
+    odom_publisher_ = this->create_publisher<nav_msgs::msg::Odometry>("/transform_visualizer/odom", 10);
     odom_path_publisher_ = this->create_publisher<nav_msgs::msg::Path>("/transform_visualizer/path/odom", 10);
     navsatfix_path_publisher_ = this->create_publisher<nav_msgs::msg::Path>("/transform_visualizer/path/navsatfix", 10);
 
@@ -115,6 +118,10 @@ void TransformVisualizer::odom_callback(const nav_msgs::msg::Odometry::ConstShar
     pose.header.frame_id = "map";
     pose.header.stamp = this->get_clock()->now();
     pose.pose = msg->pose.pose;
+    odom.header.stamp = this->get_clock()->now();
+    odom.header.frame_id = "map";
+    odom.pose.pose = msg->pose.pose;
+    odom_publisher_->publish(odom);
     odom_poses_.header.frame_id = "map";
     odom_poses_.header.stamp = this->get_clock()->now();
     odom_poses_.poses.push_back(pose);
@@ -142,7 +149,8 @@ void TransformVisualizer::lidar_callback(const sensor_msgs::msg::PointCloud2::Co
 //    }
 
     sensor_msgs::msg::PointCloud2 pointcloud_msg;
-    pointcloud_msg.header.frame_id = "lidar_link";
+//    pointcloud_msg.header.frame_id = "lidar_link";
+    pointcloud_msg.header.frame_id = "hesai_base_link";
     pointcloud_msg.header.stamp = this->get_clock()->now();
     pointcloud_msg.row_step = msg->row_step;
     pointcloud_msg.point_step = msg->point_step;
@@ -183,13 +191,13 @@ void TransformVisualizer::navsatfix_callback(const sensor_msgs::msg::NavSatFix::
 
         // publish odom msg
 //        odom.header.stamp = this->get_clock()->now();
-        odom.header.stamp = msg->header.stamp;
-        odom.header.frame_id = "map";
-        odom.child_frame_id = "base_link";
-        odom.pose.pose.position.x = local_x;
-        odom.pose.pose.position.y = local_y;
-        odom.pose.pose.position.z = local_z;
-        odom_publisher_->publish(odom);
+//        odom.header.stamp = msg->header.stamp;
+//        odom.header.frame_id = "map";
+//        odom.child_frame_id = "base_link";
+//        odom.pose.pose.position.x = local_x;
+//        odom.pose.pose.position.y = local_y;
+//        odom.pose.pose.position.z = local_z;
+//        odom_publisher_->publish(odom);
 
         // publish tf
 //        if (publish_tf) {
