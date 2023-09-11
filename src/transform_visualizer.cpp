@@ -133,24 +133,24 @@ void TransformVisualizer::lidar_callback(const sensor_msgs::msg::PointCloud2::Co
     tf2::Quaternion q;
     q.setRPY(imu2lidar_roll*M_PI/180, imu2lidar_pitch*M_PI/180, imu2lidar_yaw*M_PI/180);
 
-//    if (publish_tf){
-//        geometry_msgs::msg::TransformStamped lidar_link_tf;
-//        lidar_link_tf.header.stamp = this->get_clock()->now();
-//        lidar_link_tf.header.frame_id = "base_link";
-//        lidar_link_tf.child_frame_id = "lidar_link";
-//        lidar_link_tf.transform.translation.x = 0.0;
-//        lidar_link_tf.transform.translation.x = 0.0;
-//        lidar_link_tf.transform.translation.z = 1.5;
-//        lidar_link_tf.transform.rotation.x = q.x();
-//        lidar_link_tf.transform.rotation.y = q.y();
-//        lidar_link_tf.transform.rotation.z = q.z();
-//        lidar_link_tf.transform.rotation.w = q.w();
-//        lidar_link_tf_broadcaster_->sendTransform(lidar_link_tf);
-//    }
+    if (publish_tf){
+        geometry_msgs::msg::TransformStamped lidar_link_tf;
+        lidar_link_tf.header.stamp = this->get_clock()->now();
+        lidar_link_tf.header.frame_id = "base_link";
+        lidar_link_tf.child_frame_id = "lidar_link";
+        lidar_link_tf.transform.translation.x = 0.0;
+        lidar_link_tf.transform.translation.x = 0.0;
+        lidar_link_tf.transform.translation.z = 1.5;
+        lidar_link_tf.transform.rotation.x = q.x();
+        lidar_link_tf.transform.rotation.y = q.y();
+        lidar_link_tf.transform.rotation.z = q.z();
+        lidar_link_tf.transform.rotation.w = q.w();
+        lidar_link_tf_broadcaster_->sendTransform(lidar_link_tf);
+    }
 
     sensor_msgs::msg::PointCloud2 pointcloud_msg;
-//    pointcloud_msg.header.frame_id = "lidar_link";
-    pointcloud_msg.header.frame_id = "hesai_base_link";
+    pointcloud_msg.header.frame_id = "lidar_link";
+//    pointcloud_msg.header.frame_id = "hesai_base_link";
     pointcloud_msg.header.stamp = this->get_clock()->now();
     pointcloud_msg.row_step = msg->row_step;
     pointcloud_msg.point_step = msg->point_step;
@@ -200,16 +200,16 @@ void TransformVisualizer::navsatfix_callback(const sensor_msgs::msg::NavSatFix::
 //        odom_publisher_->publish(odom);
 
         // publish tf
-//        if (publish_tf) {
-//            base_link_tf.header.frame_id = "map";
-//            base_link_tf.header.stamp = this->get_clock()->now();
-//            base_link_tf.child_frame_id = "base_link";
-//            base_link_tf.transform.translation.x = odom.pose.pose.position.x;
-//            base_link_tf.transform.translation.y = odom.pose.pose.position.y;
-//            base_link_tf.transform.translation.z = odom.pose.pose.position.z;
+        if (publish_tf) {
+            base_link_tf.header.frame_id = "map";
+            base_link_tf.header.stamp = this->get_clock()->now();
+            base_link_tf.child_frame_id = "base_link";
+            base_link_tf.transform.translation.x = odom.pose.pose.position.x;
+            base_link_tf.transform.translation.y = odom.pose.pose.position.y;
+            base_link_tf.transform.translation.z = odom.pose.pose.position.z;
 //            base_link_tf.transform.rotation = odom.pose.pose.orientation;
-//            base_link_tf_broadcaster_->sendTransform(base_link_tf);
-//        }
+            base_link_tf_broadcaster_->sendTransform(base_link_tf);
+        }
     }
 }
 

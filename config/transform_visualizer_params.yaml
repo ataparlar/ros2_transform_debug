@@ -4,8 +4,8 @@
     imu_r_y: 0.0
     imu_r_z: 0.0
     imu2lidar_x: 0.0
-    imu2lidar_y: 0.0
-    imu2lidar_z: 180.0
+    imu2lidar_y: -0.9
+    imu2lidar_z: 180.5
 
 #    imu_topic: /applanix
 #    odom_topic: /applanix

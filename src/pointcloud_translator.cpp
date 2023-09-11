@@ -15,7 +15,7 @@ PointCloudTranslator::PointCloudTranslator() :
 //    pcl::fromPCLPointCloud2 (cloud_blob, *cloud); //* convert from pcl/PCLPointCloud2 to pcl::PointCloud<T>
 
     double lat = 41.021648496395684;
-    double lon = 28.887627130517295; // Baghdad
+    double lon = 28.887627130517295;
     int zone;
     bool northp;
     double x, y;
@@ -31,7 +31,7 @@ PointCloudTranslator::PointCloudTranslator() :
         i++;
     };
     pcl::io::savePCDFileASCII (
-            "/home/ataparlar/Downloads/LOAM_gps_included/globalCloudCorner.pcd", new_cloud);
+            "/home/ataparlar/Downloads/LOAM_full_campus/globalCloudCorner.pcd", new_cloud);
 
     std::cout << "SAVED SAVED SAVED" << std::endl;
     std::cout << "SAVED SAVED SAVED" << std::endl;
