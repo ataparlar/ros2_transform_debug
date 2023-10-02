@@ -3,9 +3,9 @@
     imu_r_x: 0.0
     imu_r_y: 0.0
     imu_r_z: 0.0
-    imu2lidar_x: 0.0
-    imu2lidar_y: -0.9
-    imu2lidar_z: 180.5
+    imu2lidar_x: -0.6
+    imu2lidar_y: -0.52
+    imu2lidar_z: -179.32
 
 #    imu_topic: /applanix
 #    odom_topic: /applanix
@@ -16,6 +16,7 @@
     odom_topic: /applanix/lvx_client/odom
     lidar_topic: /hesai/pandar
     navsatfix_topic: /applanix/lvx_client/gnss/fix
+    ins_solution_topic: /applanix/lvx_client/gsof/ins_solution_49
 
 #    imu_topic: /sensing/gnss/clap/ros/imu
 #    odom_topic: /sensing/gnss/clap/ros/odometry

@@ -22,6 +22,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(message_filters REQUIRED)
 find_package(GeographicLib REQUIRED)
 find_package(PCL REQUIRED)
+find_package(applanix_msgs REQUIRED)
 
 include_directories(include
         ${rclcpp_INCLUDE_DIRS}
@@ -35,8 +36,10 @@ include_directories(include
         ${message_filters_INCLUDE_DIRS}
         ${GeographicLib_INCLUDE_DIRS}
         ${PCL_INCLUDE_DIRS}
+        ${applanix_msgs_INCLUDE_DIRS}
 )
 
+# Data Provider Node
 add_executable(data_provider_node
         src/data_provider_node.cpp)
 ament_target_dependencies(data_provider_node rclcpp sensor_msgs nav_msgs
@@ -46,6 +49,7 @@ target_link_libraries(data_provider_node
         ${GeographicLib_LIBRARIES}
         ${message_filter_LIBRARIES})
 
+# LIO-SAM IMU Transform
 add_executable(lio_sam_imu_transform
         src/lio_sam_imu_transform.cpp)
 ament_target_dependencies(lio_sam_imu_transform rclcpp sensor_msgs nav_msgs
@@ -54,15 +58,18 @@ target_link_libraries(lio_sam_imu_transform
         Eigen3::Eigen
         ${message_filter_LIBRARIES})
 
+# Transform Visualizer
 add_executable(transform_visualizer_exe
         src/transform_visualizer.cpp)
 ament_target_dependencies(transform_visualizer_exe rclcpp sensor_msgs nav_msgs
-        tf2 tf2_ros message_filters geometry_msgs)
+        applanix_msgs tf2 tf2_ros message_filters geometry_msgs)
 target_link_libraries(transform_visualizer_exe
         Eigen3::Eigen
         ${GeographicLib_LIBRARIES}
+        ${applanix_msgs_LIBRARIES}
         ${message_filter_LIBRARIES})
 
+# Point Cloud Translator
 add_executable(pointcloud_translator_exe
         src/pointcloud_translator.cpp)
 ament_target_dependencies(pointcloud_translator_exe rclcpp sensor_msgs nav_msgs

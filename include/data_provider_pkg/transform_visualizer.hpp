@@ -19,6 +19,7 @@
 #include <message_filters/time_synchronizer.h>
 #include "message_filters/sync_policies/approximate_time.h"
 #include "GeographicLib/LocalCartesian.hpp"
+#include "applanix_msgs/msg/navigation_solution_gsof49.hpp"
 
 
 class TransformVisualizer : public rclcpp::Node
@@ -37,6 +38,7 @@ private:
     std::string odom_topic;
     std::string lidar_topic;
     std::string navsatfix_topic;
+    std::string ins_solution_topic;
     bool publish_tf;
     bool enable_ned2enu;
 
@@ -45,6 +47,7 @@ private:
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_subscription_;
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr lidar_subscription_;
     rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr navsatfix_subscription_;
+    rclcpp::Subscription<applanix_msgs::msg::NavigationSolutionGsof49>::SharedPtr ins_solution_subscription;
 
     // Publishers
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;
@@ -58,6 +61,7 @@ private:
     void odom_callback(const nav_msgs::msg::Odometry::ConstSharedPtr & msg);
     void lidar_callback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr & msg);
     void navsatfix_callback(const sensor_msgs::msg::NavSatFix::ConstSharedPtr & msg);
+    void ins_solution_callback(const applanix_msgs::msg::NavigationSolutionGsof49::ConstSharedPtr & msg);
 
     // Transform Frames
     geometry_msgs::msg::TransformStamped base_link_tf;
@@ -73,6 +77,12 @@ private:
 
     geometry_msgs::msg::PoseStamped pose;
     nav_msgs::msg::Odometry odom;
+
+    bool odom_init;
+    double odom_x;
+    double odom_y;
+    double odom_z;
+
 
 };
 

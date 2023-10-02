@@ -18,6 +18,7 @@ TransformVisualizer::TransformVisualizer() :
     this->declare_parameter("imu_topic", "");
     this->declare_parameter("odom_topic", "");
     this->declare_parameter("lidar_topic", "");
+    this->declare_parameter("ins_solution_topic", "");
     this->declare_parameter("navsatfix_topic", "");
     this->declare_parameter("publish_tf", true);
     this->declare_parameter("enable_ned2enu", false);
@@ -31,6 +32,7 @@ TransformVisualizer::TransformVisualizer() :
     imu_topic = this->get_parameter("imu_topic").as_string();
     odom_topic = this->get_parameter("odom_topic").as_string();
     lidar_topic = this->get_parameter("lidar_topic").as_string();
+    ins_solution_topic = this->get_parameter("ins_solution_topic").as_string();
     navsatfix_topic = this->get_parameter("navsatfix_topic").as_string();
     publish_tf = this->get_parameter("publish_tf").as_bool();
     enable_ned2enu = this->get_parameter("enable_ned2enu").as_bool();
@@ -51,6 +53,9 @@ TransformVisualizer::TransformVisualizer() :
     navsatfix_subscription_ = this->create_subscription<sensor_msgs::msg::NavSatFix>(
             navsatfix_topic, 10, std::bind(&TransformVisualizer::navsatfix_callback,
                                            this, std::placeholders::_1));
+    ins_solution_subscription = this->create_subscription<applanix_msgs::msg::NavigationSolutionGsof49>(
+            ins_solution_topic, 10, std::bind(&TransformVisualizer::ins_solution_callback,
+                                           this, std::placeholders::_1));
 
 
     lidar_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/transform_visualizer/pointcloud", 10);
@@ -62,6 +67,8 @@ TransformVisualizer::TransformVisualizer() :
 
     base_link_tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
     lidar_link_tf_broadcaster_ = std::make_unique<tf2_ros::TransformBroadcaster>(*this);
+
+    odom_init = false;
 };
 
 
@@ -114,24 +121,44 @@ void TransformVisualizer::imu_callback(const sensor_msgs::msg::Imu::ConstSharedP
 
 
 void TransformVisualizer::odom_callback(const nav_msgs::msg::Odometry::ConstSharedPtr &msg) {
-    geometry_msgs::msg::PoseStamped pose;
-    pose.header.frame_id = "map";
-    pose.header.stamp = this->get_clock()->now();
-    pose.pose = msg->pose.pose;
-    odom.header.stamp = this->get_clock()->now();
-    odom.header.frame_id = "map";
-    odom.pose.pose = msg->pose.pose;
-    odom_publisher_->publish(odom);
-    odom_poses_.header.frame_id = "map";
-    odom_poses_.header.stamp = this->get_clock()->now();
-    odom_poses_.poses.push_back(pose);
-    odom_path_publisher_->publish(odom_poses_);
+    if (!odom_init) {
+        odom_x = msg->pose.pose.position.x;
+        odom_y = msg->pose.pose.position.y;
+        odom_z = msg->pose.pose.position.z;
+        odom_init = true;
+    } else {
+        geometry_msgs::msg::PoseStamped pose;
+        pose.header.frame_id = "map";
+        pose.header.stamp = this->get_clock()->now();
+        pose.pose = msg->pose.pose;
+        odom.header.stamp = this->get_clock()->now();
+        odom.header.frame_id = "map";
+        odom.pose.pose.position.x = msg->pose.pose.position.x - odom_x;
+        odom.pose.pose.position.y = msg->pose.pose.position.y - odom_y;
+        odom.pose.pose.position.z = msg->pose.pose.position.z - odom_z;
+        odom_publisher_->publish(odom);
+        odom_poses_.header.frame_id = "map";
+        odom_poses_.header.stamp = this->get_clock()->now();
+        odom_poses_.poses.push_back(pose);
+        odom_path_publisher_->publish(odom_poses_);
+    }
 }
 
 
 void TransformVisualizer::lidar_callback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr &msg) {
     tf2::Quaternion q;
     q.setRPY(imu2lidar_roll*M_PI/180, imu2lidar_pitch*M_PI/180, imu2lidar_yaw*M_PI/180);
+
+    tf2::Matrix3x3 matrix3X3;
+    matrix3X3.setRPY(imu2lidar_roll*M_PI/180, imu2lidar_pitch*M_PI/180, imu2lidar_yaw*M_PI/180);
+    tf2::Matrix3x3 inverse_matrix3X3;
+    inverse_matrix3X3 = matrix3X3.inverse();
+    double roll, pitch, yaw;
+    inverse_matrix3X3.getRPY(roll, pitch, yaw);
+//    std::cout << "roll: " << roll << " ------- pitch: " << pitch << " -------- yaw: " << yaw << "\n\n" << std::endl;
+    RCLCPP_INFO(this->get_logger(), "roll: %f -------- pitch: %f --------- yaw: %f \n",
+                roll*180/M_PI, pitch*180/M_PI, yaw*180/M_PI);
+
 
     if (publish_tf){
         geometry_msgs::msg::TransformStamped lidar_link_tf;
@@ -211,6 +238,62 @@ void TransformVisualizer::navsatfix_callback(const sensor_msgs::msg::NavSatFix::
             base_link_tf_broadcaster_->sendTransform(base_link_tf);
         }
     }
+}
+
+void
+TransformVisualizer::ins_solution_callback(const applanix_msgs::msg::NavigationSolutionGsof49::ConstSharedPtr &msg) {
+//    if (!locart_init) {
+//        localCartesian.Reset(
+//                msg->lla.latitude, msg->lla.longitude, msg->lla.altitude);
+//        locart_init = true;
+//    }
+//        // Get the position of other NavSatFix data in local cartesian cs
+//    else {
+//        double local_x, local_y, local_z;
+//        localCartesian.Forward(
+//                msg->lla.latitude, msg->lla.longitude, msg->lla.altitude,
+//                local_x, local_y, local_z
+//        );
+//        // publish nav msg
+//        pose.header.frame_id = "map";
+//        pose.header.stamp = this->get_clock()->now();
+//        pose.pose.position.x = local_x;
+//        pose.pose.position.y = local_y;
+//        pose.pose.position.z = local_z;
+//        navsatfix_poses_.header.frame_id = "map";
+//        navsatfix_poses_.header.stamp = this->get_clock()->now();
+//        navsatfix_poses_.poses.push_back(pose);
+//        navsatfix_path_publisher_->publish(navsatfix_poses_);
+//
+//        // publish odom msg
+////        odom.header.stamp = this->get_clock()->now();
+////        odom.header.stamp = msg->header.stamp;
+////        odom.header.frame_id = "map";
+////        odom.child_frame_id = "base_link";
+////        odom.pose.pose.position.x = local_x;
+////        odom.pose.pose.position.y = local_y;
+////        odom.pose.pose.position.z = local_z;
+////        odom_publisher_->publish(odom);
+//
+//        tf2::Quaternion q_orig;
+//        q_orig.setRPY(msg->pitch*M_PI/180, msg->roll*M_PI/180, -msg->heading*M_PI/180);
+//
+//        // publish tf
+//        if (publish_tf) {
+//            base_link_tf.header.frame_id = "map";
+//            base_link_tf.header.stamp = this->get_clock()->now();
+//            base_link_tf.child_frame_id = "base_link";
+//            base_link_tf.transform.translation.x = local_x;
+//            base_link_tf.transform.translation.y = local_y;
+//            base_link_tf.transform.translation.z = local_z;
+////            base_link_tf.transform.rotation = odom.pose.pose.orientation;
+//            base_link_tf.transform.rotation.x = q_orig.x();
+//            base_link_tf.transform.rotation.y = q_orig.y();
+//            base_link_tf.transform.rotation.z = q_orig.z();
+//            base_link_tf.transform.rotation.w = q_orig.w();
+//            base_link_tf_broadcaster_->sendTransform(base_link_tf);
+//        }
+//    }
 }
 
 int main(int argc, char * argv[])

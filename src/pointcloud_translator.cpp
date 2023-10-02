@@ -9,13 +9,13 @@ PointCloudTranslator::PointCloudTranslator() :
         Node("transform_visualizer") {
     pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
     pcl::io::loadPCDFile<pcl::PointXYZ> (
-            "/home/ataparlar/Downloads/LOAM_gps_included/cloudCorner.pcd", *cloud);
+            "/home/ataparlar/Downloads/service_LOAM_last/GlobalMap.pcd", *cloud);
 //    pcl::PCLPointCloud2 cloud_blob;
 //    pcl::io::loadPCDFile ("test_pcd.pcd", cloud_blob);
 //    pcl::fromPCLPointCloud2 (cloud_blob, *cloud); //* convert from pcl/PCLPointCloud2 to pcl::PointCloud<T>
 
-    double lat = 41.021648496395684;
-    double lon = 28.887627130517295;
+    double lat = 41.024007930319044;
+    double lon = 28.896191868814206;
     int zone;
     bool northp;
     double x, y;
@@ -31,7 +31,7 @@ PointCloudTranslator::PointCloudTranslator() :
         i++;
     };
     pcl::io::savePCDFileASCII (
-            "/home/ataparlar/Downloads/LOAM_full_campus/globalCloudCorner.pcd", new_cloud);
+            "/home/ataparlar/Downloads/service_LOAM_last/GlobalCoordinatesMap.pcd", new_cloud);
 
     std::cout << "SAVED SAVED SAVED" << std::endl;
     std::cout << "SAVED SAVED SAVED" << std::endl;
