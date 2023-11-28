@@ -2,5 +2,5 @@
   ros__parameters:
     origin_lat: 35.324064
     origin_lon: 139.349550
-    lanelet2_file_full_path: /home/ataparlar/data/openstreetmap_data/hiratsuka_small/scripts/lanelet2_map_hiratsuka_200m_3857.osm
-    output_lanelet2_file_full_path: /home/ataparlar/data/openstreetmap_data/hiratsuka_small/scripts/lanelet2_map_hiratsuka_200m_4326_test.osm
+    lanelet2_file_full_path: /home/ataparlar/data/openstreetmap_data/hiratsuka_small/scripts/lanelet2_map_hiratsuka_200m_4326.osm
+    output_lanelet2_file_full_path: /home/ataparlar/data/openstreetmap_data/hiratsuka_small/scripts/lanelet2_map_hiratsuka_200m_4326_test2.osm

@@ -57,8 +57,8 @@ Lanelet2Mover::Lanelet2Mover() :
 //                std::cout << lat_string << std::endl;
 
                 find_quote = lat_string.find("\"");
-                std::string old_lat_str = lat_string.substr(0, find_quote);
-                double old_lat = std::stod(old_lat_str);
+                std::string x_str = lat_string.substr(0, find_quote);
+                double x = std::stod(x_str);
 
 
 
@@ -68,17 +68,8 @@ Lanelet2Mover::Lanelet2Mover() :
                 lon_string.erase(0, lon_delete.length());
 
                 find_quote = lon_string.find("\"");
-                std::string old_lon_str = lat_string.substr(0, find_quote);
-                double old_lon = std::stod(old_lon_str);
-
-
-
-
-                int zone2;
-                bool northp2;
-                double x, y, gamma2, k2;
-                GeographicLib::UTMUPS::Forward(
-                        old_lat, old_lon, zone2, northp2, x, y, gamma2, k2);
+                std::string y_str = lat_string.substr(0, find_quote);
+                double y = std::stod(y_str);
 
 
                 double new_x = origin_x + x;
