@@ -33,6 +33,11 @@ Lanelet2Mover::Lanelet2Mover() :
     file_writer.open( txt_name);
     file_writer << "<?xml version='1.0' encoding='UTF-8'?>\n<osm version=\"0.6\" upload=\"true\" generator=\"commonroad-scenario-designer\">" << std::endl;
 
+    std::ofstream file_writer2;
+    std::string txt_name2 = "/home/ataparlar/data/openstreetmap_data/hiratsuka_small/scripts/lanelet2_map_hiratsuka_200m_4326_test.txt";
+    file_writer2.open( txt_name2);
+    file_writer2 << "x, y" << std::endl;
+
 
 
     std::fstream lanelet2_file;
@@ -70,6 +75,8 @@ Lanelet2Mover::Lanelet2Mover() :
                 find_quote = lon_string.find("\"");
                 std::string y_str = lat_string.substr(0, find_quote);
                 double y = std::stod(y_str);
+
+                file_writer2 << x << ", " << y << std::endl;
 
 
                 double new_x = origin_x + x;
