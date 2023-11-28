@@ -5,6 +5,7 @@
 #include <tf2/LinearMath/Quaternion.h>
 #include <tf2/LinearMath/Matrix3x3.h>
 #include "data_provider_pkg/transform_visualizer.hpp"
+#include "autoware_sensing_msgs/msg/gnss_ins_orientation_stamped.hpp"
 
 TransformVisualizer::TransformVisualizer() :
         Node("transform_visualizer") {
@@ -18,7 +19,8 @@ TransformVisualizer::TransformVisualizer() :
     this->declare_parameter("imu_topic", "");
     this->declare_parameter("odom_topic", "");
     this->declare_parameter("lidar_topic", "");
-    this->declare_parameter("ins_solution_topic", "");
+    this->declare_parameter("autoware_orientation_topic", "");
+//    this->declare_parameter("ins_solution_topic", "");
     this->declare_parameter("navsatfix_topic", "");
     this->declare_parameter("publish_tf", true);
     this->declare_parameter("enable_ned2enu", false);
@@ -32,7 +34,8 @@ TransformVisualizer::TransformVisualizer() :
     imu_topic = this->get_parameter("imu_topic").as_string();
     odom_topic = this->get_parameter("odom_topic").as_string();
     lidar_topic = this->get_parameter("lidar_topic").as_string();
-    ins_solution_topic = this->get_parameter("ins_solution_topic").as_string();
+    autoware_orientation_topic_ = this->get_parameter("autoware_orientation_topic").as_string();
+//    ins_solution_topic = this->get_parameter("ins_solution_topic").as_string();
     navsatfix_topic = this->get_parameter("navsatfix_topic").as_string();
     publish_tf = this->get_parameter("publish_tf").as_bool();
     enable_ned2enu = this->get_parameter("enable_ned2enu").as_bool();
@@ -53,9 +56,12 @@ TransformVisualizer::TransformVisualizer() :
     navsatfix_subscription_ = this->create_subscription<sensor_msgs::msg::NavSatFix>(
             navsatfix_topic, 10, std::bind(&TransformVisualizer::navsatfix_callback,
                                            this, std::placeholders::_1));
-    ins_solution_subscription = this->create_subscription<applanix_msgs::msg::NavigationSolutionGsof49>(
-            ins_solution_topic, 10, std::bind(&TransformVisualizer::ins_solution_callback,
+    autoware_orientation_subscription_ = this->create_subscription<autoware_sensing_msgs::msg::GnssInsOrientationStamped>(
+            autoware_orientation_topic_, 10, std::bind(&TransformVisualizer::autoware_orientation_callback,
                                            this, std::placeholders::_1));
+//    ins_solution_subscription = this->create_subscription<applanix_msgs::msg::NavigationSolutionGsof49>(
+//            ins_solution_topic, 10, std::bind(&TransformVisualizer::ins_solution_callback,
+//                                           this, std::placeholders::_1));
 
 
     lidar_publisher_ = this->create_publisher<sensor_msgs::msg::PointCloud2>("/transform_visualizer/pointcloud", 10);
@@ -72,12 +78,14 @@ TransformVisualizer::TransformVisualizer() :
 };
 
 
-void TransformVisualizer::imu_callback(const sensor_msgs::msg::Imu::ConstSharedPtr &msg) {
+void TransformVisualizer::autoware_orientation_callback(
+        const autoware_sensing_msgs::msg::GnssInsOrientationStamped::ConstSharedPtr &msg) {
+
     tf2::Quaternion q_orig, q_rot, q_new;
-    q_orig.setX(msg->orientation.x);
-    q_orig.setY(msg->orientation.y);
-    q_orig.setZ(msg->orientation.z);
-    q_orig.setW(msg->orientation.w);
+    q_orig.setX(msg->orientation.orientation.x);
+    q_orig.setY(msg->orientation.orientation.y);
+    q_orig.setZ(msg->orientation.orientation.z);
+    q_orig.setW(msg->orientation.orientation.w);
 
     q_rot.setRPY(imu_roll*M_PI/180, imu_pitch*M_PI/180, imu_yaw*M_PI/180);
     q_new = q_orig * q_rot;
@@ -94,29 +102,62 @@ void TransformVisualizer::imu_callback(const sensor_msgs::msg::Imu::ConstSharedP
     }
     q_new.normalize();
 
-    odom.pose.pose.orientation.x = q_new.x();
-    odom.pose.pose.orientation.y = q_new.y();
-    odom.pose.pose.orientation.z = q_new.z();
-    odom.pose.pose.orientation.w = q_new.w();
+    base_link_tf.transform.rotation.x = q_new.x();
+    base_link_tf.transform.rotation.y = q_new.y();
+    base_link_tf.transform.rotation.z = q_new.z();
+    base_link_tf.transform.rotation.w = q_new.w();
 
-    base_link_tf.transform.rotation = odom.pose.pose.orientation;
+}
 
-    sensor_msgs::msg::Imu imu_msg;
-    imu_msg.header.frame_id = "base_link";
-    imu_msg.header.stamp = this->get_clock()->now();
-    if (enable_ned2enu) {
-        imu_msg.linear_acceleration.x = msg->linear_acceleration.y;
-        imu_msg.linear_acceleration.y = msg->linear_acceleration.x;
-        imu_msg.linear_acceleration.z = -msg->linear_acceleration.z;
-        imu_msg.angular_velocity.x = msg->angular_velocity.y;
-        imu_msg.angular_velocity.y = msg->angular_velocity.x;
-        imu_msg.angular_velocity.z = -msg->angular_velocity.z;
-    } else {
-        imu_msg.linear_acceleration = msg->linear_acceleration;
-        imu_msg.angular_velocity = msg->angular_velocity;
-    }
-    imu_msg.orientation = odom.pose.pose.orientation;
-    imu_publisher_->publish(imu_msg);
+
+void TransformVisualizer::imu_callback(const sensor_msgs::msg::Imu::ConstSharedPtr &msg) {
+//    tf2::Quaternion q_orig, q_rot, q_new;
+//    q_orig.setX(msg->orientation.x);
+//    q_orig.setY(msg->orientation.y);
+//    q_orig.setZ(msg->orientation.z);
+//    q_orig.setW(msg->orientation.w);
+//
+//    q_rot.setRPY(imu_roll*M_PI/180, imu_pitch*M_PI/180, imu_yaw*M_PI/180);
+//    q_new = q_orig * q_rot;
+//
+//    // get roll pitch yaw values of the msg
+//    tf2::Matrix3x3 m(q_orig);
+//    double roll, pitch, yaw;
+//    m.getRPY(roll, pitch, yaw);
+//
+//    if (enable_ned2enu) {
+//        q_new.setRPY(pitch*5, roll, -yaw);
+//    } else {
+//        q_new.setRPY(roll, pitch*5, yaw);
+//    }
+//    q_new.normalize();
+//
+//    odom.pose.pose.orientation.x = q_new.x();
+//    odom.pose.pose.orientation.y = q_new.y();
+//    odom.pose.pose.orientation.z = q_new.z();
+//    odom.pose.pose.orientation.w = q_new.w();
+//
+//    base_link_tf.transform.rotation.x = q_new.x();
+//    base_link_tf.transform.rotation.y = q_new.y();
+//    base_link_tf.transform.rotation.z = q_new.z();
+//    base_link_tf.transform.rotation.w = q_new.w();
+//
+//    sensor_msgs::msg::Imu imu_msg;
+//    imu_msg.header.frame_id = "base_link";
+//    imu_msg.header.stamp = this->get_clock()->now();
+//    if (enable_ned2enu) {
+//        imu_msg.linear_acceleration.x = msg->linear_acceleration.y;
+//        imu_msg.linear_acceleration.y = msg->linear_acceleration.x;
+//        imu_msg.linear_acceleration.z = -msg->linear_acceleration.z;
+//        imu_msg.angular_velocity.x = msg->angular_velocity.y;
+//        imu_msg.angular_velocity.y = msg->angular_velocity.x;
+//        imu_msg.angular_velocity.z = -msg->angular_velocity.z;
+//    } else {
+//        imu_msg.linear_acceleration = msg->linear_acceleration;
+//        imu_msg.angular_velocity = msg->angular_velocity;
+//    }
+//    imu_msg.orientation = odom.pose.pose.orientation;
+//    imu_publisher_->publish(imu_msg);
 }
 
 
@@ -231,14 +272,16 @@ void TransformVisualizer::navsatfix_callback(const sensor_msgs::msg::NavSatFix::
             base_link_tf.header.frame_id = "map";
             base_link_tf.header.stamp = this->get_clock()->now();
             base_link_tf.child_frame_id = "base_link";
-            base_link_tf.transform.translation.x = odom.pose.pose.position.x;
-            base_link_tf.transform.translation.y = odom.pose.pose.position.y;
-            base_link_tf.transform.translation.z = odom.pose.pose.position.z;
+            base_link_tf.transform.translation.x = local_x;
+            base_link_tf.transform.translation.y = local_y;
+            base_link_tf.transform.translation.z = local_z;
 //            base_link_tf.transform.rotation = odom.pose.pose.orientation;
             base_link_tf_broadcaster_->sendTransform(base_link_tf);
         }
     }
 }
+
+
 
 void
 TransformVisualizer::ins_solution_callback(const applanix_msgs::msg::NavigationSolutionGsof49::ConstSharedPtr &msg) {

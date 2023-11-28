@@ -20,6 +20,7 @@
 #include "message_filters/sync_policies/approximate_time.h"
 #include "GeographicLib/LocalCartesian.hpp"
 #include "applanix_msgs/msg/navigation_solution_gsof49.hpp"
+#include "autoware_sensing_msgs/msg/gnss_ins_orientation_stamped.hpp"
 
 
 class TransformVisualizer : public rclcpp::Node
@@ -38,16 +39,36 @@ private:
     std::string odom_topic;
     std::string lidar_topic;
     std::string navsatfix_topic;
-    std::string ins_solution_topic;
+    std::string autoware_orientation_topic_;
+//    std::string ins_solution_topic;
     bool publish_tf;
     bool enable_ned2enu;
+
+
+    struct PositionPacket
+    {
+        uint8_t udp_header[42];
+        uint8_t reserved_01[187];
+        uint8_t temp_top_board;
+        uint8_t temp_bot_board;
+        uint8_t reserved_02[9];
+        uint32_t timestamp_microseconds_since_hour;
+        uint8_t status_pps;
+        uint8_t status_thermal;
+        uint8_t temp_when_last_shut_from_overheat;
+        uint8_t temp_when_booted;
+        char nmea_sentence[128];
+        uint8_t reserved_03[178];
+    } __attribute__((packed));
 
     // Subscribers
     rclcpp::Subscription<sensor_msgs::msg::Imu>::SharedPtr imu_subscription_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr odom_subscription_;
     rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr lidar_subscription_;
     rclcpp::Subscription<sensor_msgs::msg::NavSatFix>::SharedPtr navsatfix_subscription_;
-    rclcpp::Subscription<applanix_msgs::msg::NavigationSolutionGsof49>::SharedPtr ins_solution_subscription;
+    rclcpp::Subscription<autoware_sensing_msgs::msg::GnssInsOrientationStamped>::SharedPtr
+        autoware_orientation_subscription_;
+//    rclcpp::Subscription<applanix_msgs::msg::NavigationSolutionGsof49>::SharedPtr ins_solution_subscription;
 
     // Publishers
     rclcpp::Publisher<sensor_msgs::msg::Imu>::SharedPtr imu_publisher_;
@@ -61,6 +82,7 @@ private:
     void odom_callback(const nav_msgs::msg::Odometry::ConstSharedPtr & msg);
     void lidar_callback(const sensor_msgs::msg::PointCloud2::ConstSharedPtr & msg);
     void navsatfix_callback(const sensor_msgs::msg::NavSatFix::ConstSharedPtr & msg);
+    void autoware_orientation_callback(const autoware_sensing_msgs::msg::GnssInsOrientationStamped::ConstSharedPtr & msg);
     void ins_solution_callback(const applanix_msgs::msg::NavigationSolutionGsof49::ConstSharedPtr & msg);
 
     // Transform Frames

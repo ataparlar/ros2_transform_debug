@@ -3,19 +3,21 @@
     imu_r_x: 0.0
     imu_r_y: 0.0
     imu_r_z: 0.0
-    imu2lidar_x: -0.6
-    imu2lidar_y: -0.52
-    imu2lidar_z: -179.32
+    imu2lidar_x: -0.3
+    imu2lidar_y: 0.01
+    imu2lidar_z: -1.38
+#    imu2lidar_z: 180.0
 
-#    imu_topic: /applanix
-#    odom_topic: /applanix
-#    lidar_topic: /hesai
-#    navsatfix_topic: /applanix
+    imu_topic: /sensing/gnss/sbg/ros/imu/data
+    odom_topic: /applanix
+    lidar_topic: /sensing/lidar/top/pointcloud_raw
+    navsatfix_topic: /sensing/gnss/sbg/ros/ekf_nav_sat_fix
+    autoware_orientation_topic: /sensing/gnss/sbg/autoware_orientation
 
-    imu_topic: /applanix/lvx_client/imu_raw
-    odom_topic: /applanix/lvx_client/odom
-    lidar_topic: /hesai/pandar
-    navsatfix_topic: /applanix/lvx_client/gnss/fix
+#    imu_topic: /applanix/lvx_client/imu_raw
+#    odom_topic: /applanix/lvx_client/odom
+#    lidar_topic: /hesai/pandar
+#    navsatfix_topic: /applanix/lvx_client/gnss/fix
     ins_solution_topic: /applanix/lvx_client/gsof/ins_solution_49
 
 #    imu_topic: /sensing/gnss/clap/ros/imu

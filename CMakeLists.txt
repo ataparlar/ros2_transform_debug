@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 add_compile_options(-Wall -Wextra -Wpedantic)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
+set(PcapPlusPlus_DIR "/usr/local/lib/cmake/pcapplusplus/PcapPlusPlusConfig.cmake")
+
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
@@ -62,7 +64,7 @@ target_link_libraries(lio_sam_imu_transform
 add_executable(transform_visualizer_exe
         src/transform_visualizer.cpp)
 ament_target_dependencies(transform_visualizer_exe rclcpp sensor_msgs nav_msgs
-        applanix_msgs tf2 tf2_ros message_filters geometry_msgs)
+        applanix_msgs tf2 tf2_ros message_filters geometry_msgs autoware_sensing_msgs)
 target_link_libraries(transform_visualizer_exe
         Eigen3::Eigen
         ${GeographicLib_LIBRARIES}
@@ -80,7 +82,17 @@ target_link_libraries(pointcloud_translator_exe
         ${PCL_LIBRARIES}
         ${message_filter_LIBRARIES})
 
-install(TARGETS data_provider_node lio_sam_imu_transform transform_visualizer_exe pointcloud_translator_exe
+# Lanelet2 Mover
+add_executable(lanelet2_mover_exe
+        src/lanelet2_mover.cpp)
+ament_target_dependencies(lanelet2_mover_exe rclcpp sensor_msgs nav_msgs
+        geometry_msgs GeographicLib)
+target_link_libraries(lanelet2_mover_exe
+        Eigen3::Eigen
+        ${GeographicLib_LIBRARIES})
+
+
+install(TARGETS data_provider_node lio_sam_imu_transform transform_visualizer_exe pointcloud_translator_exe lanelet2_mover_exe
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch
