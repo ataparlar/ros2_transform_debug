@@ -91,8 +91,19 @@ target_link_libraries(lanelet2_mover_exe
         Eigen3::Eigen
         ${GeographicLib_LIBRARIES})
 
+# Point Cloud Origin Changer
+add_executable(point_cloud_origin_changer_exe
+        src/point_cloud_origin_changer.cpp)
+ament_target_dependencies(point_cloud_origin_changer_exe rclcpp sensor_msgs nav_msgs
+        geometry_msgs GeographicLib PCL)
+target_link_libraries(point_cloud_origin_changer_exe
+        Eigen3::Eigen
+        ${PCL_LIBRARIES}
+        ${GeographicLib_LIBRARIES})
 
-install(TARGETS data_provider_node lio_sam_imu_transform transform_visualizer_exe pointcloud_translator_exe lanelet2_mover_exe
+
+install(TARGETS data_provider_node lio_sam_imu_transform transform_visualizer_exe pointcloud_translator_exe
+        lanelet2_mover_exe point_cloud_origin_changer_exe
   DESTINATION lib/${PROJECT_NAME})
 
 install(DIRECTORY launch

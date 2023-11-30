@@ -34,7 +34,7 @@ Lanelet2Mover::Lanelet2Mover() :
     file_writer << "<?xml version='1.0' encoding='UTF-8'?>\n<osm version=\"0.6\" upload=\"true\" generator=\"commonroad-scenario-designer\">" << std::endl;
 
     std::ofstream file_writer2;
-    std::string txt_name2 = "/home/ataparlar/data/openstreetmap_data/hiratsuka_small/scripts/lanelet2_map_hiratsuka_200m_4326_test.txt";
+    std::string txt_name2 = "/home/ataparlar/data/openstreetmap_data/hiratsuka_small/commonroad_data/lanelet2_map_hiratsuka_200m_4326_test1.txt";
     file_writer2.open( txt_name2);
     file_writer2 << "x, y" << std::endl;
 
@@ -73,14 +73,14 @@ Lanelet2Mover::Lanelet2Mover() :
                 lon_string.erase(0, lon_delete.length());
 
                 find_quote = lon_string.find("\"");
-                std::string y_str = lat_string.substr(0, find_quote);
+                std::string y_str = lon_string.substr(0, find_quote);
                 double y = std::stod(y_str);
 
-                file_writer2 << x << ", " << y << std::endl;
+                double new_x = origin_x - x;
+                double new_y = origin_y - y;
 
+                file_writer2 << std::setprecision(11) << new_x << ", " << new_y << std::endl;
 
-                double new_x = origin_x + x;
-                double new_y = origin_y + y;
 
                 double new_lat, new_lon;
                 GeographicLib::UTMUPS::Reverse(
@@ -90,8 +90,9 @@ Lanelet2Mover::Lanelet2Mover() :
                 std::cout << "new_lon: " << new_lon << "\n" << std::endl;
 
 
-                file_writer << line.substr(0, line.find("lat=")+5) << std::setprecision(12) << std::to_string(new_lat) <<
-                    "\" lon=\"" << std::to_string(new_lon) << "\"/>" << std::endl;
+
+                file_writer << line.substr(0, line.find("lat=")+5) << std::setprecision(12) << new_lat <<
+                    "\" lon=\"" << new_lon << "\"/>" << std::endl;
                 line_written = true;
 
             }

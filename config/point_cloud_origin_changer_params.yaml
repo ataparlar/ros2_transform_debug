@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+    pcd_map_full_path: /home/ataparlar/data/autoware/ytu_map_pospac_rtcm/ytu_campus_080423_rdp_sor_noise_ss_octree11.pcd
+    new_pcd_full_path: /home/ataparlar/data/autoware/ytu_map_pospac_rtcm/ytu_campus_080423_rdp_sor_noise_ss_octree11_origined.pcd
+
+    old_origin_lat: 41.019141875  # in decimal degrees
+    old_origin_lon: 28.88822681013889  # in decimal degrees
+    old_origin_height: 116.250886  # in meters
+    new_origin_lat: 41.018738  # in decimal degrees
+    new_origin_lon: 28.88742  # in decimal degrees
+    new_origin_height: 117.00  # in meters
