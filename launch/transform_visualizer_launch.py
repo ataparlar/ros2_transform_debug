@@ -13,11 +13,11 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     """Generate launch description."""
-    path_package = get_package_share_directory('data_provider_pkg')
+    path_package = get_package_share_directory('leo_mapping_tools')
 
     transform_visualizer_param = os.path.join(path_package, 'config/transform_visualizer_params.yaml')
     transform_visualizer_node = Node(
-        package='data_provider_pkg',
+        package='leo_mapping_tools',
         executable='transform_visualizer_exe',
         parameters=[transform_visualizer_param]
     )

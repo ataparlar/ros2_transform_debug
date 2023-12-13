@@ -13,11 +13,11 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     """Generate launch description."""
-    path_package = get_package_share_directory('data_provider_pkg')
+    path_package = get_package_share_directory('leo_mapping_tools')
 
     point_cloud_origin_changer_params = os.path.join(path_package, 'config/point_cloud_origin_changer_params.yaml')
     point_cloud_origin_changer_node = Node(
-        package='data_provider_pkg',
+        package='leo_mapping_tools',
         executable='point_cloud_origin_changer_exe',
         parameters=[point_cloud_origin_changer_params]
     )
